@@ -5,7 +5,25 @@ import PropTypes from 'prop-types';
 import NewAccountList from './components/NewAccountList';
 import { NewListTableProps } from '../../../shared/prop-types/TablesProps';
 import { getAllUsers, deleteUser, deleteNewListTableData } from '../../../redux/actions/accountActions';
+import { destroyAlert } from '../../../redux/actions/alertActions';
+import { BasicNotification } from '../../../shared/components/Notification';
+import NotificationSystem from 'rc-notification';
 import { Link } from 'react-router-dom';
+
+let notification = null;
+
+const showNotification = (location, message) => {
+  notification.notice({
+    content: <BasicNotification
+      title="👋 Welcome to the DashDev!"
+      message={message}
+    />,
+    duration: 5,
+    closable: true,
+    style: { top: 0, left: 'calc(100vw - 100%)' },
+    className: `right-up ${location}-support`,
+  });
+};
 
 class AccountList extends Component {
     constructor() {
@@ -20,7 +38,17 @@ class AccountList extends Component {
             id: this.props.auth.user.id
         }
         this.props.getAllUsers(userData);
-        console.log("ini new list", this.props.newList);
+        this.props.destroyAlert();
+    }
+
+    componentWillReceiveProps(nextProps) {
+        let { location , alert } = nextProps;
+        console.log(location,alert);
+        if(alert.success) {
+            NotificationSystem.newInstance({ style: { top: 65 } }, n => notification = n);
+            setTimeout(() => showNotification(location.pathname, alert.message), 700);
+            nextProps.destroyAlert();
+        }
     }
 
     onDeleteRow = (idData,index, e) => {
@@ -71,7 +99,8 @@ AccountList.propTypes = {
 
 const mapStateToProps = state => ({
     auth: state.auth,
-    newList: state.newList.items
+    newList: state.newList.items,
+    alert: state.alert
 });
 
-export default connect(mapStateToProps,{ getAllUsers,deleteUser,deleteNewListTableData })(AccountList);
+export default connect(mapStateToProps,{ getAllUsers,deleteUser,deleteNewListTableData,destroyAlert })(AccountList);

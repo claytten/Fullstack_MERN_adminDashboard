@@ -1,7 +1,12 @@
 import axios from "axios";
 import authToken from '../../config/auth.js';
 
-import { LOAD_NEW_LIST_TABLE_DATA, CHANGE_NEW_LIST_TABLE_DATA, DELETE_NEW_LIST_TABLE_DATA} from "../reducers/types";
+import { 
+  LOAD_NEW_LIST_TABLE_DATA, 
+  CHANGE_NEW_LIST_TABLE_DATA, 
+  DELETE_NEW_LIST_TABLE_DATA
+} from "../reducers/types";
+import { setSuccessSubmit,destroyAlert } from './alertActions.js';
 
 const { SERVER_URL } = process.env;
 const qs = require('querystring');
@@ -22,6 +27,9 @@ export const createUser = (userData,history) => dispatch => {
     if(res.data.success) {
       dispatch(getAllUsers(userData));
       history.push('/account/list');
+      dispatch(setSuccessSubmit(res.data.message));
+    } else {
+      dispatch(setSuccessSubmit(res.data.message));
     }
   })
   .catch(err =>{
@@ -54,8 +62,10 @@ export const getAllUsers = (userData) => dispatch => {
             roles : value.roles[0]
           };
           const dispatchGetValue = dispatch(changeNewListTableData(getValue,index));
+          
           return dispatchGetValue;
         });
+      dispatch(destroyAlert());
     }
       
   })
@@ -78,6 +88,9 @@ export const updateUser = (userData, history) => dispatch => {
     console.log(res);
     if(res.data.success) {
       history.push('/account/list');
+      dispatch(setSuccessSubmit(res.data.message));
+    } else {
+      dispatch(setSuccessSubmit(res.data.message));
     }
   })
   .catch(err =>{
@@ -98,7 +111,9 @@ export const deleteUser = (userData, history) => dispatch => {
   )
   .then(res => {
     if(res.data.success) {
-      console.log(res, userData.data);
+      dispatch(setSuccessSubmit(res.data.message));
+    } else {
+      dispatch(setSuccessSubmit(res.data.message));
     }
   })
   .catch(err =>{

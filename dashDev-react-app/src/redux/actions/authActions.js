@@ -2,8 +2,13 @@ import axios from "axios";
 import setAuthToken from "../../utils/setAuthToken";
 import jwt_decode from "jwt-decode";
 import authToken from '../../config/auth.js';
+import { setSuccessSubmit } from './alertActions.js';
 
-import { GET_ERRORS, SET_CURRENT_USER, USER_LOADING } from "../reducers/types";
+import { 
+  GET_ERRORS, 
+  SET_CURRENT_USER, 
+  USER_LOADING
+} from "../reducers/types";
 
 const { SERVER_URL } = process.env;
 const qs = require('querystring');
@@ -31,7 +36,7 @@ export const registerUser = (userData, history) => dispatch => {
 };
 
 // Login - get user token
-export const loginUser = userData => dispatch => {
+export const loginUser = (userData,history) => dispatch => {
   axios
     .post(`http://${SERVER_URL}/api/login`, qs.stringify(userData),
       {
@@ -41,10 +46,9 @@ export const loginUser = userData => dispatch => {
       }
     )
     .then(res => {
+      let {success, message} = res.data;
       // Save to localStorage
-      console.log(res.data);
-      console.log(process.env);
-      if(res.data.success) {
+      if(success) {
         // Set token to localStorage
         const { token } = res.data.data;
         localStorage.setItem("jwtToken", token);
@@ -54,6 +58,9 @@ export const loginUser = userData => dispatch => {
         const decoded = jwt_decode(token);
         // Set current user
         dispatch(setCurrentUser(decoded));
+      } else {
+        dispatch(setSuccessSubmit(message));
+        history.push('/log_in');
       }
     })
     .catch(err => {
@@ -63,6 +70,7 @@ export const loginUser = userData => dispatch => {
       })
     });
 };
+
 
 // Set logged in user
 export const setCurrentUser = decoded => {
@@ -85,23 +93,8 @@ export const logoutUser = () => dispatch => {
   localStorage.removeItem("jwtToken");
   // Remove auth header for future requests
   setAuthToken(false);
+  const message = "Thank for Your Coming!"
+  dispatch(setSuccessSubmit(message));
   // Set current user to empty object {} which will set isAuthenticated to false
   dispatch(setCurrentUser({}));
 };
-
-// export const AUTHENTICATE = 'AUTHENTICATE';
-// export const AUTHENTICATE_ERROR_AUTH = 'AUTHENTICATE_ERROR_AUTH';
-
-// export function auth({ name, avatar }) {
-//   return {
-//     type: AUTHENTICATE,
-//     user: { name, avatar },
-//   };
-// }
-
-// export function authError(error) {
-//   return {
-//     type: AUTHENTICATE_ERROR_AUTH,
-//     error,
-//   };
-// }

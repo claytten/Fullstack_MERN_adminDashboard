@@ -77,7 +77,7 @@ class ProfileSettings extends Component {
     };
     console.log(userData);
 
-    this.props.updateUser(userData);
+    this.props.updateUser(userData,this.props.history);
   };
 
   deactivateSubmit = e => {
