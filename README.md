@@ -14,7 +14,7 @@
 * `open new terminal`
 * `cd ..`
 * `cd dashDev-react-app && npm install && npm start`
-* `default routing /login || /register` 
+* `default routing /log_in || /register` 
 
 
 ## Node.js modules used in this (DashDev-api)

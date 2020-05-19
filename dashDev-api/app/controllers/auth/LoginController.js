@@ -23,6 +23,7 @@ exports.login = function (req, res) {
     })
         .populate("roles", "-__v")
         .exec((err, user) => {
+            console.log(user);
             if (err) {
                 res.json({success: false, statusCode: 500, errorMessage: err});
             }
@@ -45,16 +46,21 @@ exports.login = function (req, res) {
                     
 
                     user['roles'] = authorities;
-    
-                    res.json({
-                        success:true, 
-                        message: "user found!!!", 
-                        data:{
-                            id: user._id,
-                            email: user.email,
-                            roles: authorities,
-                            token:token
-                        }});
+                    console.log(user.roles[0].name);
+                    if(user.roles[0].name === "admin" || user.roles[0].name === "superadmin") {
+                        res.json({
+                            success:true, 
+                            message: "user found!!!", 
+                            data:{
+                                id: user._id,
+                                email: user.email,
+                                roles: authorities,
+                                token:token
+                            }});
+                        
+                    } else {
+                        res.json({success:false, message: "You are not allowed!", data:null});
+                    }
                 }else{
                     res.json({success:false, message: "Authentication failed. Invalid User.", data:null});
                 }
