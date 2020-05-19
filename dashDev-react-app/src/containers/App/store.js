@@ -5,7 +5,8 @@ import {
   sidebarReducer,
   authReducer,
   errorReducer,
-  newListTableReducer
+  newListTableReducer,
+  alertReducer
 } from '../../redux/reducers/index';
 
 const initialState = {};
@@ -17,6 +18,7 @@ const reducer = combineReducers({
   auth: authReducer,
   errors: errorReducer,
   newList: newListTableReducer,
+  alert: alertReducer
 });
 const store = createStore(reducer,initialState, applyMiddleware(thunk));
 

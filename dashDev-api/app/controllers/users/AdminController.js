@@ -201,7 +201,7 @@ exports.user = {
                 res.json({success: false, statusCode: 500, errorMessage: err});
             }
             //If able to fetch all users then send them in response in data key.
-            res.json({success: true , statusCode: 200, data: null});
+            res.json({success: true , statusCode: 200, message: "User has been Deleted Successfully!", data: null});
         })
     },
 };

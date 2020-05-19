@@ -1,7 +1,7 @@
 import axios from "axios";
 import setAuthToken from "../../utils/setAuthToken";
-import jwt_decode from "jwt-decode";
 import authToken from '../../config/auth.js';
+import { setSuccessSubmit } from './alertActions';
 
 import { SET_CURRENT_USER } from "../reducers/types";
 
@@ -10,7 +10,6 @@ const qs = require('querystring');
 
 // Register User
 export const updateUser = (userData, history) => dispatch => {
-  console.log(userData,history);
   axios
     .put(`http://${SERVER_URL}/api/user/update/${userData.id}`, qs.stringify(userData),
       {
@@ -22,19 +21,9 @@ export const updateUser = (userData, history) => dispatch => {
     )
     .then(res => {
       // Save to localStorage
-      console.log(res.data);
-      if(res.status) {
-        dispatch(logoutUser());
-        // Set token to localStorage
-        const { token } = res.data.data;
-        localStorage.setItem("jwtToken", token);
-        // Set token to Auth header
-        setAuthToken(token);
-        // Decode token to get user data
-        const decoded = jwt_decode(token);
-        // Set current user
-        dispatch(setCurrentUser(decoded));
-        history.push("/dashboard")
+      if(res.data.success) {
+        history.push("/dashboard");
+        dispatch(setSuccessSubmit(res.data.message));
       }
     })
     .catch(err =>{

@@ -9,16 +9,18 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Alert, Button } from 'reactstrap';
 import { loginUser } from "../../../redux/actions/authActions";
+import { destroyAlert } from "../../../redux/actions/alertActions";
 import { BasicNotification } from '../Notification';
 import NotificationSystem from 'rc-notification';
 
+
 let notification = null;
 
-const showNotification = (location) => {
+const showNotification = (location, message) => {
   notification.notice({
     content: <BasicNotification
       title="👋 Welcome to the DashDev!"
-      message="Please Login to Dashboard"
+      message={message}
     />,
     duration: 5,
     closable: true,
@@ -41,18 +43,19 @@ class LogInForm extends Component {
   componentDidMount() {
     // If logged in and user navigates to Login page, should redirect them to dashboard
     if (this.props.auth.isAuthenticated) {
+      this.props.destroyAlert();
       this.props.history.push("/dashboard");
-    }
+    } 
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.auth.isAuthenticated) {
       this.props.history.push("/dashboard");
-    } else {
+    } else if(this.props.alert.success) {
       const { location } = nextProps;
       NotificationSystem.newInstance({ style: { top: 65 } }, n => notification = n);
-      setTimeout(() => showNotification(location.pathname), 700);
-    }
+      setTimeout(() => showNotification(location.pathname, this.props.alert.message), 700);
+    } 
   }
 
   onChange = e => {
@@ -67,7 +70,7 @@ class LogInForm extends Component {
       password: this.state.password
     };
 
-    this.props.loginUser(userData);
+    this.props.loginUser(userData,this.props.history);
   };
 
   showPassword(e) {
@@ -157,10 +160,11 @@ LogInForm.propTypes = {
 const mapStateToProps = state => ({
   errorMsg: state.user.error,
   auth: state.auth,
+  alert: state.alert,
   errors: state.errors
 });
 
 export default withRouter( connect(
   mapStateToProps,
-  { loginUser }
+  { loginUser,destroyAlert }
 )(reduxForm()(LogInForm)));

@@ -27,6 +27,7 @@ verifyToken = (req, res, next) => {
 };
 
 isAdmin = (req, res, next) => {
+  console.log(req);
   User.findById(req.headers.userid).exec((err, user) => {
     if (err) {
       res.status(500).send({ message: err });
@@ -52,7 +53,7 @@ isAdmin = (req, res, next) => {
           }
         }
 
-        res.status(403).send({ message: "Require Admin Role!" });
+        res.json({success:false, message: "You are not allowed!", data:null});
         return;
       }
     );
@@ -83,7 +84,7 @@ isSuperadmin = (req, res, next) => {
           }
         }
 
-        res.status(403).send({ message: "Require Superadmin Role!" });
+        res.json({success:false, message: "You are not allowed!", data:null});
         return;
       }
     );

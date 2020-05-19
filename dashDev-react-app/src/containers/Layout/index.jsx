@@ -12,14 +12,15 @@ import { changeMobileSidebarVisibility, changeSidebarVisibility } from '../../re
 import {
   SidebarProps, UserProps,
 } from '../../shared/prop-types/ReducerProps';
+import { destroyAlert } from '../../redux/actions/alertActions';
 
 let notification = null;
 
-const showNotification = (location) => {
+const showNotification = (location, message) => {
   notification.notice({
     content: <BasicNotification
       title="👋 Welcome to the DashDev!"
-      message="You have successfully registered in the DashDev. "
+      message={message}
     />,
     duration: 5,
     closable: true,
@@ -39,14 +40,19 @@ class Layout extends Component {
   };
 
   componentDidMount() {
-    const { location } = this.props;
+    let { location  } = this.props;
     NotificationSystem.newInstance({ style: { top: 65 } }, n => notification = n);
-    setTimeout(() => showNotification(location.pathname), 700);
+    setTimeout(() => showNotification(location.pathname, "You have successfully registered in the DashDev. "), 700);
+    this.props.destroyAlert();
   }
-
-  // componentWillUnmount() {
-  //   notification.destroy();
-  // }
+  componentWillReceiveProps(nextProps) {
+    let { location , alert } = nextProps;
+    if(alert.success) {
+      NotificationSystem.newInstance({ style: { top: 65 } }, n => notification = n);
+      setTimeout(() => showNotification(location.pathname, alert.message), 700);
+      nextProps.destroyAlert();
+    }
+  }
 
   changeSidebarVisibility = () => {
     const { dispatch } = this.props;
@@ -83,7 +89,13 @@ class Layout extends Component {
   }
 }
 
-export default withRouter(connect(state => ({
+const mapStateToProps = state => ({
   sidebar: state.sidebar,
   user: state.user,
-}))(Layout));
+  alert: state.alert
+});
+
+export default withRouter( connect(
+  mapStateToProps,
+  {destroyAlert}
+)(Layout));
